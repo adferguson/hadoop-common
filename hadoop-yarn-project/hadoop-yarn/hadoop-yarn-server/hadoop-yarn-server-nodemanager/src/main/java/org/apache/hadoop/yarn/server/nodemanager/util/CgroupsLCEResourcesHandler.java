@@ -66,12 +66,6 @@ public class CgroupsLCEResourcesHandler implements LCEResourcesHandler {
   @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
-    this.cgroupPrefix = conf.get(YarnConfiguration.
-    		NM_LINUX_CONTAINER_CGROUPS_HIERARCHY, "/hadoop-yarn");
-    this.cgroupMount = conf.getBoolean(YarnConfiguration.
-    		NM_LINUX_CONTAINER_CGROUPS_MOUNT, false);
-    this.cgroupMountPath = conf.get(YarnConfiguration.
-    		NM_LINUX_CONTAINER_CGROUPS_MOUNT_PATH, null);
   }
 
   @Override
@@ -81,6 +75,13 @@ public class CgroupsLCEResourcesHandler implements LCEResourcesHandler {
 
   public synchronized void init(LinuxContainerExecutor lce) {
 
+    this.cgroupPrefix = conf.get(YarnConfiguration.
+            NM_LINUX_CONTAINER_CGROUPS_HIERARCHY, "/hadoop-yarn");
+    this.cgroupMount = conf.getBoolean(YarnConfiguration.
+            NM_LINUX_CONTAINER_CGROUPS_MOUNT, false);
+    this.cgroupMountPath = conf.get(YarnConfiguration.
+            NM_LINUX_CONTAINER_CGROUPS_MOUNT_PATH, null);
+	  
     if (cgroupMount) {
       ArrayList<String> cgroupKVs = new ArrayList<String>();
       cgroupKVs.add(CONTROLLER_CPU + "=" + cgroupMountPath + "/" +
@@ -245,12 +246,7 @@ public class CgroupsLCEResourcesHandler implements LCEResourcesHandler {
     try {
       fReader = new FileReader(new File(MTAB_FILE));
       in = new BufferedReader(fReader);	
-    } catch (FileNotFoundException f) {
-      LOG.warn("Mount file " + MTAB_FILE + " cannot be read.");
-      return ret;
-    }
-
-    try {
+    	
       for (String str = in.readLine(); str != null;
           str = in.readLine()) {
         Matcher m = MTAB_FILE_FORMAT.matcher(str);
@@ -267,18 +263,13 @@ public class CgroupsLCEResourcesHandler implements LCEResourcesHandler {
         }
       }
     } catch (IOException e) {
-      LOG.warn("Error while reading " + MTAB_FILE);
+      LOG.warn("Error while reading " + MTAB_FILE, e);
     } finally {
       // Close the streams
       try {
-        fReader.close();
-        try {
-          in.close();
-        } catch (IOException i) {
-          LOG.warn("Error closing the stream " + in);
-        }
-      } catch (IOException i) {
-        LOG.warn("Error closing the stream " + fReader);
+        in.close();
+      } catch (IOException e2) {
+        LOG.warn("Error closing the stream " + in, e2);
       }
     }
 
