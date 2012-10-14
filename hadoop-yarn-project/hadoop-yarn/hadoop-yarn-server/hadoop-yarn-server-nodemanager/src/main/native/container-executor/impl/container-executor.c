@@ -1202,25 +1202,23 @@ void mount_cgroup(const char *pair, const char *hierarchy) {
   mount("none", mount_path, "cgroup", 0, controller);
 
   char *hier_path = malloc(strlen(mount_path) + strlen(hierarchy) + 2);
-  if (hier_path == NULL) {
-    free(for_key);
-    free(for_value);
-    return;
-  }
 
-  char *buf = stpncpy(hier_path, mount_path, strlen(mount_path));
-  *buf++ = '/';
-  stpncpy(buf, hierarchy, strlen(hierarchy));
+  if (hier_path != NULL) {
+    char *buf = stpncpy(hier_path, mount_path, strlen(mount_path));
+    *buf++ = '/';
+    stpncpy(buf, hierarchy, strlen(hierarchy));
 
-  // create hierarchy as 0750 and chown to Hadoop NM user
-  const mode_t perms = S_IRWXU | S_IRGRP | S_IXGRP;
-  if (mkdirs(hier_path, perms) == 0) {
-    change_owner(hier_path, nm_uid, nm_gid);
-    chown_dir_contents(hier_path, nm_uid, nm_gid);
+    // create hierarchy as 0750 and chown to Hadoop NM user
+    const mode_t perms = S_IRWXU | S_IRGRP | S_IXGRP;
+    if (mkdirs(hier_path, perms) == 0) {
+      change_owner(hier_path, nm_uid, nm_gid);
+      chown_dir_contents(hier_path, nm_uid, nm_gid);
+    }
+
+    free(hier_path);
   }
 
   free(for_key);
   free(for_value);
-  free(hier_path);
 }
 
