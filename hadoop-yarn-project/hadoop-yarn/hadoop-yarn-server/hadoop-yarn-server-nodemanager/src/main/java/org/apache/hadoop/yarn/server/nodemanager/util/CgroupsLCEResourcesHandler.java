@@ -66,9 +66,12 @@ public class CgroupsLCEResourcesHandler implements LCEResourcesHandler {
   @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
-    this.cgroupPrefix = conf.get(YarnConfiguration.NM_LINUX_CONTAINER_CGROUPS_HIERARCHY, "/hadoop-yarn");
-    this.cgroupMount = conf.getBoolean(YarnConfiguration.NM_LINUX_CONTAINER_CGROUPS_MOUNT, false);
-    this.cgroupMountPath = conf.get(YarnConfiguration.NM_LINUX_CONTAINER_CGROUPS_MOUNT_PATH, null);
+    this.cgroupPrefix = conf.get(YarnConfiguration.
+    		NM_LINUX_CONTAINER_CGROUPS_HIERARCHY, "/hadoop-yarn");
+    this.cgroupMount = conf.getBoolean(YarnConfiguration.
+    		NM_LINUX_CONTAINER_CGROUPS_MOUNT, false);
+    this.cgroupMountPath = conf.get(YarnConfiguration.
+    		NM_LINUX_CONTAINER_CGROUPS_MOUNT_PATH, null);
   }
 
   @Override
@@ -80,7 +83,8 @@ public class CgroupsLCEResourcesHandler implements LCEResourcesHandler {
 
     if (cgroupMount) {
       ArrayList<String> cgroupKVs = new ArrayList<String>();
-      cgroupKVs.add(CONTROLLER_CPU + "=" + cgroupMountPath + "/" + CONTROLLER_CPU);
+      cgroupKVs.add(CONTROLLER_CPU + "=" + cgroupMountPath + "/" +
+                    CONTROLLER_CPU);
       lce.mountCgroups(cgroupKVs, cgroupPrefix);
     }
     
@@ -114,7 +118,8 @@ public class CgroupsLCEResourcesHandler implements LCEResourcesHandler {
     return true;
   }
 
-  private void updateCgroup(String controller, String groupName, String param, String value) {
+  private void updateCgroup(String controller, String groupName, String param,
+                            String value) {
     FileWriter f = null;
     String path = pathForCgroup(controller, groupName);
     param = controller + "." + param;
@@ -157,7 +162,8 @@ public class CgroupsLCEResourcesHandler implements LCEResourcesHandler {
    * TODO: After YARN-2 is committed, we should call containerResource.getCpus()
    * (or equivalent) to multiply the weight by the number of requested cpus.
    */
-  private void setupLimits(ContainerId containerId, Resource containerResource) {
+  private void setupLimits(ContainerId containerId,
+                           Resource containerResource) {
     String containerName = containerId.toString();
     
     if (isCpuWeightEnabled() && createCgroup(CONTROLLER_CPU, containerName)) {
@@ -277,7 +283,8 @@ public class CgroupsLCEResourcesHandler implements LCEResourcesHandler {
     return ret;
   }
 
-  private String findControllerInMtab(String controller, Map<String, List<String>> entries) {
+  private String findControllerInMtab(String controller,
+                                      Map<String, List<String>> entries) {
     for (Entry<String, List<String>> e : entries.entrySet()) {
       if (e.getValue().contains(controller))
         return e.getKey();
