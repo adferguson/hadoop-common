@@ -115,18 +115,27 @@ public class CgroupsLCEResourcesHandler implements LCEResourcesHandler {
   }
 
   private void updateCgroup(String controller, String groupName, String param, String value) {
+    FileWriter f = null;
     String path = pathForCgroup(controller, groupName);
     param = controller + "." + param;
 
     LOG.debug("updateCgroup: " + path + ": " + param + "=" + value);
 
     try {
-      FileWriter f = new FileWriter(path + "/" + param, false);
+      f = new FileWriter(path + "/" + param, false);
       f.write(value);
-      f.close();
     } catch (IOException e) {
       LOG.warn("Unable to set " + param + "=" + value +
           " for cgroup at: " + path, e);
+    }
+    
+    if (f != null) {
+      try {
+        f.close();
+      } catch (IOException e) {
+        LOG.warn("Unable to close cgroup file: " +
+            path, e);
+      }
     }
   }	
 
