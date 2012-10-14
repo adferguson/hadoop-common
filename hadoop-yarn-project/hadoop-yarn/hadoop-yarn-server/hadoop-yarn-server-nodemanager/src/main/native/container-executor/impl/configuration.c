@@ -308,7 +308,7 @@ char ** extract_values(char *value) {
       tempTok = strtok_r(NULL, ",", &tempstr);
     }
   }
-  if (size > 0) {
+  if (toPass != NULL) {
     toPass[size] = NULL;
   }
   return toPass;
@@ -322,4 +322,42 @@ void free_values(char** values) {
   if (values != NULL) {
     free(values);
   }
+}
+
+/**
+ * Returns the key in a key,value pair of the form key=value
+ */
+char *get_kv_key(char *pair) {
+  char *toPass = pair;
+  char *equaltok;
+  char *temp_equaltok;
+
+  if (pair != NULL) {
+     equaltok = strtok_r(pair, "=", &temp_equaltok);
+     if (equaltok != NULL) {
+       toPass = equaltok;
+     }
+  }
+
+  return toPass;
+}
+
+/**
+ * Returns the value in a key,value pair of the form key=value
+ */
+char *get_kv_value(char *pair) {
+  char *toPass = pair;
+  char *equaltok;
+  char *temp_equaltok;
+
+  if (pair != NULL) {
+     equaltok = strtok_r(pair, "=", &temp_equaltok);
+     if (equaltok != NULL) {
+       toPass = temp_equaltok;
+     } else {
+       toPass = NULL;
+     }
+  }
+
+  return toPass;
 }

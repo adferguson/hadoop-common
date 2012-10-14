@@ -50,3 +50,6 @@ void free_values(char** values);
 //method to free allocated configuration
 void free_configurations();
 
+// methods to return the key or value in a key=value pair
+char *get_kv_key(char *pair);
+char *get_kv_value(char *pair);

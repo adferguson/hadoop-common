@@ -39,6 +39,7 @@
 static char* username = NULL;
 static char* local_dirs = NULL;
 static char* log_dirs = NULL;
+static char* resources = NULL;
 
 /**
  * Run the command using the effective user id.
@@ -612,7 +613,9 @@ void test_run_container() {
   } else if (child == 0) {
     if (launch_container_as_user(username, "app_4", "container_1", 
           container_dir, script_name, TEST_ROOT "/creds.txt", pid_file,
-          extract_values(local_dirs), extract_values(log_dirs)) != 0) {
+          extract_values(local_dirs), extract_values(log_dirs),
+          get_kv_key(resources),
+          extract_values(get_kv_value(resources))) != 0) {
       printf("FAIL: failed in child\n");
       exit(42);
     }
