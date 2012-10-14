@@ -124,7 +124,9 @@ public class CgroupsLCEResourcesHandler implements LCEResourcesHandler {
     String path = pathForCgroup(controller, groupName);
     param = controller + "." + param;
 
-    LOG.debug("updateCgroup: " + path + ": " + param + "=" + value);
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("updateCgroup: " + path + ": " + param + "=" + value);
+    }
 
     try {
       f = new FileWriter(path + "/" + param, false);
