@@ -82,7 +82,7 @@ public class CgroupsLCEResourcesHandler implements LCEResourcesHandler {
     this.cgroupMountPath = conf.get(YarnConfiguration.
             NM_LINUX_CONTAINER_CGROUPS_MOUNT_PATH, null);
 	  
-    if (cgroupMount) {
+    if (cgroupMount && cgroupMountPath != null) {
       ArrayList<String> cgroupKVs = new ArrayList<String>();
       cgroupKVs.add(CONTROLLER_CPU + "=" + cgroupMountPath + "/" +
                     CONTROLLER_CPU);
