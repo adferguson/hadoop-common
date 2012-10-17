@@ -20,7 +20,6 @@ package org.apache.hadoop.yarn.server.nodemanager.util;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -73,7 +72,7 @@ public class CgroupsLCEResourcesHandler implements LCEResourcesHandler {
     return conf;
   }
 
-  public synchronized void init(LinuxContainerExecutor lce) {
+  public synchronized void init(LinuxContainerExecutor lce) throws IOException {
 
     this.cgroupPrefix = conf.get(YarnConfiguration.
             NM_LINUX_CONTAINER_CGROUPS_HIERARCHY, "/hadoop-yarn");
@@ -81,7 +80,18 @@ public class CgroupsLCEResourcesHandler implements LCEResourcesHandler {
             NM_LINUX_CONTAINER_CGROUPS_MOUNT, true);
     this.cgroupMountPath = conf.get(YarnConfiguration.
             NM_LINUX_CONTAINER_CGROUPS_MOUNT_PATH, null);
-	  
+	
+    // remove extra /'s at end or start of cgroupPrefix
+    if (cgroupPrefix.charAt(0) == '/') {
+    	cgroupPrefix = cgroupPrefix.substring(1);
+    }
+
+    int len = cgroupPrefix.length();
+    if (cgroupPrefix.charAt(len - 1) == '/') {
+    	cgroupPrefix = cgroupPrefix.substring(0, len - 1);
+    }
+   
+    // mount cgroups if requested
     if (cgroupMount && cgroupMountPath != null) {
       ArrayList<String> cgroupKVs = new ArrayList<String>();
       cgroupKVs.add(CONTROLLER_CPU + "=" + cgroupMountPath + "/" +
@@ -238,14 +248,12 @@ public class CgroupsLCEResourcesHandler implements LCEResourcesHandler {
    * for mounts with type "cgroup". Cgroup controllers will
    * appear in the list of options for a path.
    */
-  private Map<String, List<String>> parseMtab() {
+  private Map<String, List<String>> parseMtab() throws IOException {
     Map<String, List<String>> ret = new HashMap<String, List<String>>();
-    FileReader fReader = null;
     BufferedReader in = null;
 
     try {
-      fReader = new FileReader(new File(MTAB_FILE));
-      in = new BufferedReader(fReader);	
+      in = new BufferedReader(new FileReader(new File(MTAB_FILE)));	
     	
       for (String str = in.readLine(); str != null;
           str = in.readLine()) {
@@ -264,12 +272,13 @@ public class CgroupsLCEResourcesHandler implements LCEResourcesHandler {
       }
     } catch (IOException e) {
       LOG.warn("Error while reading " + MTAB_FILE, e);
+      throw e;
     } finally {
       // Close the streams
       try {
         in.close();
       } catch (IOException e2) {
-        LOG.warn("Error closing the stream " + in, e2);
+        LOG.warn("Error closing the stream: " + MTAB_FILE, e2);
       }
     }
 
@@ -286,7 +295,7 @@ public class CgroupsLCEResourcesHandler implements LCEResourcesHandler {
     return null;
   }
 
-  private void initializeControllerPaths() {
+  private void initializeControllerPaths() throws IOException {
     String controllerPath;
     Map<String, List<String>> parsedMtab = parseMtab();
 
