@@ -271,8 +271,7 @@ public class CgroupsLCEResourcesHandler implements LCEResourcesHandler {
         }
       }
     } catch (IOException e) {
-      LOG.warn("Error while reading " + MTAB_FILE, e);
-      throw e;
+      throw new IOException("Error while reading " + MTAB_FILE, e);
     } finally {
       // Close the streams
       try {

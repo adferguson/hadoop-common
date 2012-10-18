@@ -354,9 +354,8 @@ public class LinuxContainerExecutor extends ContainerExecutor {
     } catch (IOException e) {
         int ret_code = shExec.getExitCode();
         logOutput(shExec.getOutput());
-        LOG.error("Problem mounting cgroups " + cgroupKVs + 
-                  "; exit code = " + ret_code);
-        throw e;
+        throw new IOException("Problem mounting cgroups " + cgroupKVs + 
+                  "; exit code = " + ret_code, e);
     }
   }  
 }
