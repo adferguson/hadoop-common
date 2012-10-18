@@ -336,9 +336,10 @@ public class LinuxContainerExecutor extends ContainerExecutor {
     }
   }
   
-  public boolean mountCgroups(List<String> cgroupKVs, String hierarchy) {
+  public void mountCgroups(List<String> cgroupKVs, String hierarchy)
+         throws IOException {
     List<String> command = new ArrayList<String>(
-              Arrays.asList(containerExecutorExe, "--mount-cgroups", hierarchy));
+            Arrays.asList(containerExecutorExe, "--mount-cgroups", hierarchy));
     command.addAll(cgroupKVs);
     
     String[] commandArray = command.toArray(new String[command.size()]);
@@ -353,10 +354,9 @@ public class LinuxContainerExecutor extends ContainerExecutor {
     } catch (IOException e) {
         int ret_code = shExec.getExitCode();
         logOutput(shExec.getOutput());
-        LOG.error("Problem mounting cgroups " + cgroupKVs +  "; exit = " + ret_code);
-        return false;
+        LOG.error("Problem mounting cgroups " + cgroupKVs + 
+                  "; exit code = " + ret_code);
+        throw e;
     }
-
-  return true;
   }  
 }

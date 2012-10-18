@@ -159,10 +159,13 @@ int main(int argc, char **argv) {
   if (do_mount_cgroups) {
     optind++;
     char *hierarchy = argv[optind++];
-    while (optind < argc) {
-      mount_cgroup(argv[optind++], hierarchy);
+    int result = 0;
+
+    while (optind < argc && result == 0) {
+      result = mount_cgroup(argv[optind++], hierarchy);
     }
-    return 0;
+
+    return result;
   }
 
   //checks done for user name

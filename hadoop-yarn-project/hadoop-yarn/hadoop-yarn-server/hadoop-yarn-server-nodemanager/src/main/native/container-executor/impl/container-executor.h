@@ -201,4 +201,4 @@ int create_directory_for_user(const char* path);
 
 int change_user(uid_t user, gid_t group);
 
-void mount_cgroup(const char *pair, const char *hierarchy);
+int mount_cgroup(const char *pair, const char *hierarchy);

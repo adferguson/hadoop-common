@@ -172,7 +172,7 @@ static int write_pid_to_cgroup_as_root(const char* cgroup_file, pid_t pid) {
 
   // write pid
   char pid_buf[21];
-  snprintf(pid_buf, 21, "%d", pid);
+  snprintf(pid_buf, sizeof(pid_buf), "%d", pid);
   ssize_t written = write(cgroup_fd, pid_buf, strlen(pid_buf));
   close(cgroup_fd);
   if (written == -1) {
@@ -1193,20 +1193,18 @@ void chown_dir_contents(const char *dir_path, uid_t uid, gid_t gid) {
  * pair: a key-value pair of the form "controller=mount-path"
  * hierarchy: the top directory of the hierarchy for the NM
  */
-void mount_cgroup(const char *pair, const char *hierarchy) {
+int mount_cgroup(const char *pair, const char *hierarchy) {
   char *for_key = strdup(pair);
   char* for_value = strdup(pair);
   char *controller = get_kv_key(for_key);
   char *mount_path = get_kv_value(for_value);
+  char hier_path[PATH_MAX];
+  int result = 0;
 
-  mount("none", mount_path, "cgroup", 0, controller);
-
-  char *hier_path = malloc(strlen(mount_path) + strlen(hierarchy) + 2);
-
-  if (hier_path != NULL) {
+  if (mount("none", mount_path, "cgroup", 0, controller) == 0) {
     char *buf = stpncpy(hier_path, mount_path, strlen(mount_path));
     *buf++ = '/';
-    stpncpy(buf, hierarchy, strlen(hierarchy));
+    snprintf(buf, sizeof(buf), "%s", hierarchy);
 
     // create hierarchy as 0750 and chown to Hadoop NM user
     const mode_t perms = S_IRWXU | S_IRGRP | S_IXGRP;
@@ -1214,11 +1212,15 @@ void mount_cgroup(const char *pair, const char *hierarchy) {
       change_owner(hier_path, nm_uid, nm_gid);
       chown_dir_contents(hier_path, nm_uid, nm_gid);
     }
-
-    free(hier_path);
+  } else {
+    fprintf(LOGFILE, "Failed to mount cgroup controller %s at %s - %s\n",
+              controller, mount_path, strerror(errno));
+    result = -1;
   }
 
   free(for_key);
   free(for_value);
+
+  return result;
 }
 
