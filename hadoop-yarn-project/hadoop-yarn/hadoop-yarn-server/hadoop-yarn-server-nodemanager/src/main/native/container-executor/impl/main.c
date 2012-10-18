@@ -218,17 +218,25 @@ int main(int argc, char **argv) {
     local_dirs = argv[optind++];// good local dirs as a comma separated list
     log_dirs = argv[optind++];// good log dirs as a comma separated list
     resources = argv[optind++];// key,value pair describing resources
-    char *for_key = strdup(resources);
-    char *for_value = strdup(resources);
-    resources_key = get_kv_key(for_key);
-    resources_value = extract_values(get_kv_value(for_value));
+    char *resources_key = malloc(strlen(resources));
+    char *resources_value = malloc(strlen(resources));
+    if (get_kv_key(resources, resources_key, strlen(resources)) < 0 ||
+        get_kv_value(resources, resources_value, strlen(resources)) < 0) {
+        fprintf(ERRORFILE, "Invalid arguments for cgroups resources: %s",
+                           resources);
+        fflush(ERRORFILE);
+        free(resources_key);
+        free(resources_value);
+        return INVALID_ARGUMENT_NUMBER;
+    }
+    char** resources_values = extract_values(resources_value);
     exit_code = launch_container_as_user(user_detail->pw_name, app_id,
                     container_id, current_dir, script_file, cred_file,
                     pid_file, extract_values(local_dirs),
                     extract_values(log_dirs), resources_key,
-                    resources_value);
-    free(for_key);
-    free(for_value);
+                    resources_values);
+    free(resources_key);
+    free(resources_value);
     break;
   case SIGNAL_CONTAINER:
     if (argc != 5) {

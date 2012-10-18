@@ -611,11 +611,17 @@ void test_run_container() {
 	   strerror(errno));
     exit(1);
   } else if (child == 0) {
+    char *key = malloc(strlen(resources));
+    char *value = malloc(strlen(resources));
+    if (get_kv_key(resources, key, strlen(resources)) < 0 ||
+        get_kv_value(resources, key, strlen(resources)) < 0) {
+        printf("FAIL: resources failed - %s\n");
+        exit(1);
+    }
     if (launch_container_as_user(username, "app_4", "container_1", 
           container_dir, script_name, TEST_ROOT "/creds.txt", pid_file,
           extract_values(local_dirs), extract_values(log_dirs),
-          get_kv_key(resources),
-          extract_values(get_kv_value(resources))) != 0) {
+          key, extract_values(value)) != 0) {
       printf("FAIL: failed in child\n");
       exit(42);
     }

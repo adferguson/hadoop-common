@@ -16,6 +16,8 @@
  * limitations under the License.
  */
 
+#include <stddef.h>
+
 /**
  * Ensure that the configuration file and all of the containing directories
  * are only writable by root. Otherwise, an attacker can change the 
@@ -51,5 +53,5 @@ void free_values(char** values);
 void free_configurations();
 
 // methods to return the key or value in a key=value pair
-char *get_kv_key(char *pair);
-char *get_kv_value(char *pair);
+int get_kv_key(const char *input, char *out, size_t out_len);
+int get_kv_value(const char *input, char *out, size_t out_len);

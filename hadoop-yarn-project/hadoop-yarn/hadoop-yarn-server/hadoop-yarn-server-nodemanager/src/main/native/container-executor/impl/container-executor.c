@@ -1194,14 +1194,17 @@ void chown_dir_contents(const char *dir_path, uid_t uid, gid_t gid) {
  * hierarchy: the top directory of the hierarchy for the NM
  */
 int mount_cgroup(const char *pair, const char *hierarchy) {
-  char *for_key = strdup(pair);
-  char* for_value = strdup(pair);
-  char *controller = get_kv_key(for_key);
-  char *mount_path = get_kv_value(for_value);
+  char *controller = malloc(strlen(pair));
+  char *mount_path = malloc(strlen(pair));
   char hier_path[PATH_MAX];
   int result = 0;
 
-  if (mount("none", mount_path, "cgroup", 0, controller) == 0) {
+  if (get_kv_key(pair, controller, strlen(pair)) < 0 ||
+      get_kv_value(pair, mount_path, strlen(pair)) < 0) {
+    result = -1; 
+  }
+
+  if (result >= 0 && mount("none", mount_path, "cgroup", 0, controller) == 0) {
     char *buf = stpncpy(hier_path, mount_path, strlen(mount_path));
     *buf++ = '/';
     snprintf(buf, sizeof(buf), "%s", hierarchy);
@@ -1218,8 +1221,8 @@ int mount_cgroup(const char *pair, const char *hierarchy) {
     result = -1;
   }
 
-  free(for_key);
-  free(for_value);
+  free(controller);
+  free(mount_path);
 
   return result;
 }

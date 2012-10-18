@@ -325,39 +325,66 @@ void free_values(char** values) {
 }
 
 /**
- * Returns the key in a key,value pair of the form key=value
+ * If str is a string of the form key=val, find 'key'
+ * 
+ * @param input    The input string
+ * @param out      Where to put the output string.
+ * @param out_len  The length of the output buffer.
+ *
+ * @return         -ENAMETOOLONG if out_len is not long enough;
+ *                 -EINVAL if there is no equals sign in the input;
+ *                 0 on success
  */
-char *get_kv_key(char *pair) {
-  char *toPass = pair;
-  char *equaltok;
-  char *temp_equaltok;
+int get_kv_key(const char *input, char *out, size_t out_len) {
 
-  if (pair != NULL) {
-     equaltok = strtok_r(pair, "=", &temp_equaltok);
-     if (equaltok != NULL) {
-       toPass = equaltok;
-     }
-  }
+  if (input == NULL)
+    return -EINVAL;
 
-  return toPass;
+  char *split = strchr(input, '=');
+
+  if (split == NULL)
+    return -EINVAL;
+
+  int key_len = split - input;
+
+  if (out_len < (key_len + 1) || out == NULL)
+    return -ENAMETOOLONG;
+
+  memcpy(out, input, key_len);
+  out[key_len] = '\0';
+
+  return 0;
 }
 
 /**
- * Returns the value in a key,value pair of the form key=value
+ * If str is a string of the form key=val, find 'val'
+ * 
+ * @param input    The input string
+ * @param out      Where to put the output string.
+ * @param out_len  The length of the output buffer.
+ *
+ * @return         -ENAMETOOLONG if out_len is not long enough;
+ *                 -EINVAL if there is no equals sign in the input;
+ *                 0 on success
  */
-char *get_kv_value(char *pair) {
-  char *toPass = pair;
-  char *equaltok;
-  char *temp_equaltok;
+int get_kv_value(const char *input, char *out, size_t out_len) {
 
-  if (pair != NULL) {
-     equaltok = strtok_r(pair, "=", &temp_equaltok);
-     if (equaltok != NULL) {
-       toPass = temp_equaltok;
-     } else {
-       toPass = NULL;
-     }
-  }
+  if (input == NULL)
+    return -EINVAL;
 
-  return toPass;
+  char *split = strchr(input, '=');
+
+  if (split == NULL)
+    return -EINVAL;
+
+  split++; // advance past '=' to the value
+  int val_len = (input + strlen(input)) - split;
+
+  if (out_len < (val_len + 1) || out == NULL)
+    return -ENAMETOOLONG;
+
+  memcpy(out, split, val_len);
+  out[val_len] = '\0';
+
+  return 0;
 }
