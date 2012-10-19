@@ -326,14 +326,6 @@ void free_values(char** values) {
 
 /**
  * If str is a string of the form key=val, find 'key'
- * 
- * @param input    The input string
- * @param out      Where to put the output string.
- * @param out_len  The length of the output buffer.
- *
- * @return         -ENAMETOOLONG if out_len is not long enough;
- *                 -EINVAL if there is no equals sign in the input;
- *                 0 on success
  */
 int get_kv_key(const char *input, char *out, size_t out_len) {
 
@@ -358,14 +350,6 @@ int get_kv_key(const char *input, char *out, size_t out_len) {
 
 /**
  * If str is a string of the form key=val, find 'val'
- * 
- * @param input    The input string
- * @param out      Where to put the output string.
- * @param out_len  The length of the output buffer.
- *
- * @return         -ENAMETOOLONG if out_len is not long enough;
- *                 -EINVAL if there is no equals sign in the input;
- *                 0 on success
  */
 int get_kv_value(const char *input, char *out, size_t out_len) {
 

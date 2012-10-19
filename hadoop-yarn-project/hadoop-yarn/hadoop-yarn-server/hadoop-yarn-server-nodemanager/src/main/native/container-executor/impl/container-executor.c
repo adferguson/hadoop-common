@@ -1201,24 +1201,26 @@ int mount_cgroup(const char *pair, const char *hierarchy) {
 
   if (get_kv_key(pair, controller, strlen(pair)) < 0 ||
       get_kv_value(pair, mount_path, strlen(pair)) < 0) {
+    fprintf(LOGFILE, "Failed to mount cgroup controller; invalid option: %s\n",
+              pair);
     result = -1; 
-  }
-
-  if (result >= 0 && mount("none", mount_path, "cgroup", 0, controller) == 0) {
-    char *buf = stpncpy(hier_path, mount_path, strlen(mount_path));
-    *buf++ = '/';
-    snprintf(buf, sizeof(buf), "%s", hierarchy);
-
-    // create hierarchy as 0750 and chown to Hadoop NM user
-    const mode_t perms = S_IRWXU | S_IRGRP | S_IXGRP;
-    if (mkdirs(hier_path, perms) == 0) {
-      change_owner(hier_path, nm_uid, nm_gid);
-      chown_dir_contents(hier_path, nm_uid, nm_gid);
-    }
   } else {
-    fprintf(LOGFILE, "Failed to mount cgroup controller %s at %s - %s\n",
-              controller, mount_path, strerror(errno));
-    result = -1;
+    if (mount("none", mount_path, "cgroup", 0, controller) == 0) {
+      char *buf = stpncpy(hier_path, mount_path, strlen(mount_path));
+      *buf++ = '/';
+      snprintf(buf, sizeof(buf), "%s", hierarchy);
+
+      // create hierarchy as 0750 and chown to Hadoop NM user
+      const mode_t perms = S_IRWXU | S_IRGRP | S_IXGRP;
+      if (mkdirs(hier_path, perms) == 0) {
+        change_owner(hier_path, nm_uid, nm_gid);
+        chown_dir_contents(hier_path, nm_uid, nm_gid);
+      }
+    } else {
+      fprintf(LOGFILE, "Failed to mount cgroup controller %s at %s - %s\n",
+                controller, mount_path, strerror(errno));
+      result = -1;
+    }
   }
 
   free(controller);
