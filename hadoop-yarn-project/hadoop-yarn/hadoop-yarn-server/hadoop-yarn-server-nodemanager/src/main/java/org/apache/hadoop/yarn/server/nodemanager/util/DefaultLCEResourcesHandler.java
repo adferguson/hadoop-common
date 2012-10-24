@@ -58,7 +58,7 @@ public class DefaultLCEResourcesHandler implements LCEResourcesHandler {
   }
   
   public String getResourcesOption(ContainerId containerId) {
-    return "none";
+    return "cgroups=none";
   }
 
 

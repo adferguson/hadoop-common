@@ -892,7 +892,8 @@ int launch_container_as_user(const char *user, const char *app_id,
   }
 
   // cgroups-based resource enforcement
-  if (resources_key != NULL && ! strcmp(resources_key, "cgroups")) {
+  if (resources_key != NULL && ! strcmp(resources_key, "cgroups")
+        && resources_value != NULL && ! strcmp(resources_value, "none")) {
 
     // write pid to cgroups
     char* const* cgroup_ptr;
