@@ -77,7 +77,7 @@ public class CgroupsLCEResourcesHandler implements LCEResourcesHandler {
     this.cgroupPrefix = conf.get(YarnConfiguration.
             NM_LINUX_CONTAINER_CGROUPS_HIERARCHY, "/hadoop-yarn");
     this.cgroupMount = conf.getBoolean(YarnConfiguration.
-            NM_LINUX_CONTAINER_CGROUPS_MOUNT, true);
+            NM_LINUX_CONTAINER_CGROUPS_MOUNT, false);
     this.cgroupMountPath = conf.get(YarnConfiguration.
             NM_LINUX_CONTAINER_CGROUPS_MOUNT_PATH, null);
 	
