@@ -892,14 +892,14 @@ int launch_container_as_user(const char *user, const char *app_id,
   }
 
   // cgroups-based resource enforcement
-  if (resources_key != NULL && ! strcmp(resources_key, "cgroups")
-        && resources_value != NULL && ! strcmp(resources_value, "none")) {
+  if (resources_key != NULL && ! strcmp(resources_key, "cgroups")) {
 
     // write pid to cgroups
     char* const* cgroup_ptr;
     for (cgroup_ptr = resources_values; cgroup_ptr != NULL && 
          *cgroup_ptr != NULL; ++cgroup_ptr) {
-      if (write_pid_to_cgroup_as_root(*cgroup_ptr, pid) != 0) {
+      if (strcmp(*cgroup_ptr, "none") != 0 &&
+            write_pid_to_cgroup_as_root(*cgroup_ptr, pid) != 0) {
         exit_code = WRITE_CGROUP_FAILED;
         goto cleanup;
       }
@@ -1220,7 +1220,10 @@ int mount_cgroup(const char *pair, const char *hierarchy) {
     } else {
       fprintf(LOGFILE, "Failed to mount cgroup controller %s at %s - %s\n",
                 controller, mount_path, strerror(errno));
-      result = -1;
+      // if controller is already mounted, don't stop trying to mount others
+      if (errno != EBUSY) {
+        result = -1;
+      }
     }
   }
 
