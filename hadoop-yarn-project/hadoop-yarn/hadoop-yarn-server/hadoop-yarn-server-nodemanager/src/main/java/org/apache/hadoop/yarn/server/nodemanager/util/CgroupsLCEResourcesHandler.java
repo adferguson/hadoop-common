@@ -116,21 +116,21 @@ public class CgroupsLCEResourcesHandler implements LCEResourcesHandler {
     return controllerPath + "/" + cgroupPrefix + "/" + groupName;
   }
 
-  private boolean createCgroup(String controller, String groupName) {
+  private void createCgroup(String controller, String groupName)
+        throws IOException {
     String path = pathForCgroup(controller, groupName);
 
-    LOG.debug("createCgroup: " + path);
-
-    if (! new File(path).mkdir()) {
-      LOG.error("Failed to create cgroup at " + path);
-      return false;
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("createCgroup: " + path);
     }
 
-    return true;
+    if (! new File(path).mkdir()) {
+      throw new IOException("Failed to create cgroup at " + path);
+    }
   }
 
   private void updateCgroup(String controller, String groupName, String param,
-                            String value) {
+                            String value) throws IOException {
     FileWriter f = null;
     String path = pathForCgroup(controller, groupName);
     param = controller + "." + param;
@@ -143,7 +143,7 @@ public class CgroupsLCEResourcesHandler implements LCEResourcesHandler {
       f = new FileWriter(path + "/" + param, false);
       f.write(value);
     } catch (IOException e) {
-      LOG.warn("Unable to set " + param + "=" + value +
+      throw new IOException("Unable to set " + param + "=" + value +
           " for cgroup at: " + path, e);
     }
     
@@ -176,10 +176,11 @@ public class CgroupsLCEResourcesHandler implements LCEResourcesHandler {
    * (or equivalent) to multiply the weight by the number of requested cpus.
    */
   private void setupLimits(ContainerId containerId,
-                           Resource containerResource) {
+                           Resource containerResource) throws IOException {
     String containerName = containerId.toString();
     
-    if (isCpuWeightEnabled() && createCgroup(CONTROLLER_CPU, containerName)) {
+    if (isCpuWeightEnabled()) {
+      createCgroup(CONTROLLER_CPU, containerName);
       updateCgroup(CONTROLLER_CPU, containerName, "shares",
           String.valueOf(CPU_DEFAULT_WEIGHT));
     }
@@ -208,7 +209,8 @@ public class CgroupsLCEResourcesHandler implements LCEResourcesHandler {
    * LCE Resources Handler interface
    */
 
-  public void preExecute(ContainerId containerId, Resource containerResource) {
+  public void preExecute(ContainerId containerId, Resource containerResource)
+              throws IOException {
     setupLimits(containerId, containerResource);
   }
 

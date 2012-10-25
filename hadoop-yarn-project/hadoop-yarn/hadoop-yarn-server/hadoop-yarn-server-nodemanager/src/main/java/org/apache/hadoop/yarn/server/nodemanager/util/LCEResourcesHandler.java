@@ -35,7 +35,8 @@ public interface LCEResourcesHandler extends Configurable {
    * @param containerId the id of the container being launched
    * @param containerResource the node resources the container will be using
    */
-  void preExecute(ContainerId containerId, Resource containerResource);
+  void preExecute(ContainerId containerId, Resource containerResource)
+       throws IOException;
 
   /**
    * Called by the LinuxContainerExecutor after the executable inside the
