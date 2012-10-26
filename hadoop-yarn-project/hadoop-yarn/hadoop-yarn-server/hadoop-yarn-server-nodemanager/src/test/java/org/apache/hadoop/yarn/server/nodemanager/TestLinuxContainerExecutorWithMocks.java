@@ -126,7 +126,7 @@ public class TestLinuxContainerExecutorWithMocks {
     assertEquals(Arrays.asList(appSubmitter, cmd, appId, containerId,
         workDir.toString(), "/bin/echo", "/dev/null", pidFile.toString(),
         StringUtils.join(",", dirsHandler.getLocalDirs()),
-        StringUtils.join(",", dirsHandler.getLogDirs()), "none"),
+        StringUtils.join(",", dirsHandler.getLogDirs()), "cgroups=none"),
         readMockParams());
     
   }
