@@ -1209,7 +1209,7 @@ int mount_cgroup(const char *pair, const char *hierarchy) {
     if (mount("none", mount_path, "cgroup", 0, controller) == 0) {
       char *buf = stpncpy(hier_path, mount_path, strlen(mount_path));
       *buf++ = '/';
-      snprintf(buf, sizeof(buf), "%s", hierarchy);
+      snprintf(buf, PATH_MAX - (buf - hier_path), "%s", hierarchy);
 
       // create hierarchy as 0750 and chown to Hadoop NM user
       const mode_t perms = S_IRWXU | S_IRGRP | S_IXGRP;

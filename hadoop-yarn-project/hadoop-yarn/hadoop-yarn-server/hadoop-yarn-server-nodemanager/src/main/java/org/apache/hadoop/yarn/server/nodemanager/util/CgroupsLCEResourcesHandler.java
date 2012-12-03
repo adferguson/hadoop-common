@@ -310,14 +310,12 @@ public class CgroupsLCEResourcesHandler implements LCEResourcesHandler {
       if (f.canWrite()) {
         controllerPaths.put(CONTROLLER_CPU, controllerPath);
       } else {
-        LOG.warn("Not able to enforce cpu weights; cannot write "
+        throw new IOException("Not able to enforce cpu weights; cannot write "
             + "to cgroup at: " + controllerPath);
-        cpuWeightEnabled = false;
       }
     } else {
-      LOG.warn("Not able to enforce cpu weights; cannot find "
+      throw new IOException("Not able to enforce cpu weights; cannot find "
           + "cgroup for cpu controller in " + MTAB_FILE);
-      cpuWeightEnabled = false;
     }	
   }
 }
