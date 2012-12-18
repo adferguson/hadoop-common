@@ -145,14 +145,14 @@ public class CgroupsLCEResourcesHandler implements LCEResourcesHandler {
     } catch (IOException e) {
       throw new IOException("Unable to set " + param + "=" + value +
           " for cgroup at: " + path, e);
-    }
-    
-    if (f != null) {
-      try {
-        f.close();
-      } catch (IOException e) {
-        LOG.warn("Unable to close cgroup file: " +
-            path, e);
+    } finally {
+      if (f != null) {
+        try {
+          f.close();
+        } catch (IOException e) {
+          LOG.warn("Unable to close cgroup file: " +
+              path, e);
+        }
       }
     }
   }	
